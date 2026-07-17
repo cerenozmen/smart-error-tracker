@@ -1,0 +1,9 @@
+# Specify files that shouldn't be modified by Fern
+README.md
+LICENSE
+.github/workflows/e2e.yml
+tests/
+.github/workflows/ci.yml
+client/aws.go
+go.mod
+go.sum

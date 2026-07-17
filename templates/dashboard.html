@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Error Tracker - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen font-sans">
+
+    <!-- Header (Daha ince ve kompakt hale getirildi) -->
+    <header class="border-b border-slate-200 bg-white/80 backdrop-blur sticky top-0 z-50 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2.5">
+                <div class="bg-indigo-600 p-1.5 rounded-md text-white">
+                    <i class="fa-solid fa-bug-slash text-base"></i>
+                </div>
+                <div>
+                    <h1 class="text-base font-bold tracking-tight text-slate-900">SMART ERROR TRACKER <span class="text-indigo-600 font-semibold">Dashboard</span></h1>
+                    <p class="text-[10px] text-slate-400">v1.0</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="flex h-2 w-2 relative">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span class="text-xs text-slate-500 font-medium">Sistem Aktif</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-6">
+        
+        <!-- İstatistik Kartları (Paddingleri azaltılarak küçültüldü) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white border border-slate-200 rounded-lg p-4 flex items-center justify-between shadow-sm">
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">Toplam Hata Logu</p>
+                    <p class="text-2xl font-bold mt-0.5 text-slate-950">{{len .Issues}}</p>
+                </div>
+                <div class="bg-indigo-50 p-2.5 rounded-md text-indigo-600">
+                    <i class="fa-solid fa-list-check text-lg"></i>
+                </div>
+            </div>
+            
+            <div class="bg-white border border-slate-200 rounded-lg p-4 flex items-center justify-between shadow-sm">
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">Aktif AI Analizleri</p>
+                    <p class="text-2xl font-bold mt-0.5 text-emerald-600">Aktif</p>
+                </div>
+                <div class="bg-emerald-50 p-2.5 rounded-md text-emerald-600">
+                    <i class="fa-solid fa-brain text-lg"></i>
+                </div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-lg p-4 flex items-center justify-between shadow-sm">
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">Veritabanı Durumu</p>
+                    <p class="text-2xl font-bold mt-0.5 text-indigo-600">Bağlı</p>
+                </div>
+                <div class="bg-indigo-50 p-2.5 rounded-md text-indigo-600">
+                    <i class="fa-solid fa-database text-lg"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Başlık Satırı -->
+        <div class="mb-4 flex justify-between items-center">
+            <h2 class="text-sm font-semibold text-slate-700 uppercase tracking-wider">Kayıtlı Hatalar</h2>
+            <button onclick="window.location.reload();" class="text-xs bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 px-2.5 py-1.5 rounded-md shadow-sm transition flex items-center space-x-1.5">
+                <i class="fa-solid fa-rotate text-[10px]"></i>
+                <span>Yenile</span>
+            </button>
+        </div>
+
+        <!-- Hata Listesi (Kart tasarımları sıkılaştırıldı ve küçültüldü) -->
+        <div class="space-y-3">
+            {{range .Issues}}
+            <div x-data="{ open: false }" class="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm transition duration-200 hover:border-slate-300">
+                
+                <!-- Hata Başlık Satırı (Padding azaltıldı, yükseklik dengelendi) -->
+                <div @click="open = !open" class="px-4 py-3 flex items-center justify-between cursor-pointer select-none hover:bg-slate-50/50">
+                    <div class="flex items-center space-x-3 min-w-0 flex-1">
+                        <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-rose-50 text-rose-600 border border-rose-100">
+                            ERROR
+                        </span>
+                        <div class="min-w-0">
+                            <h3 class="text-sm font-semibold text-slate-900 truncate">{{.Title}}</h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5 flex items-center space-x-2">
+                                <span><i class="fa-regular fa-clock mr-1"></i> {{.CreatedAt.Format "02.01.2006 15:04"}}</span>
+                                <span class="text-slate-200">|</span>
+                                <span>ID: #{{.ID}}</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3 ml-4">
+                        <span class="text-[10px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100" x-show="open">Detayları Gizle</span>
+                        <span class="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded" x-show="!open">Detayları Gör</span>
+                        <i class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-200" :class="{ 'rotate-180': open }"></i>
+                    </div>
+                </div>
+
+                <!-- Detaylar Bölümü (Açılır panel dolguları ve iç metin boyutları küçültüldü) -->
+                <div x-show="open" x-cloak class="border-t border-slate-100 bg-slate-50/40 p-4 space-y-4">
+                    <div class="grid grid-cols-1 gap-4">
+                        <div>
+                            <h4 class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Hata Detayı</h4>
+                            <div class="bg-rose-50/60 p-3 rounded border border-rose-100 font-mono text-xs text-rose-800 whitespace-pre-wrap leading-relaxed">
+                                {{.Message}}
+                            </div>
+                        </div>
+
+                        {{if .StackTrace}}
+                        <div>
+                            <h4 class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Stack Trace</h4>
+                            <div class="bg-slate-100/80 p-3 rounded border border-slate-200 font-mono text-[11px] text-slate-700 overflow-x-auto max-h-48 overflow-y-auto leading-relaxed">
+                                {{.StackTrace}}
+                            </div>
+                        </div>
+                        {{end}}
+                    </div>
+
+                    <!-- AI Analiz Raporu Bölümü -->
+                    <div class="border-t border-slate-200/60 pt-4">
+                        <div class="flex items-center space-x-1.5 text-emerald-600 mb-2">
+                            <i class="fa-solid fa-brain text-xs"></i>
+                            <h4 class="text-xs font-bold uppercase tracking-wider">AI Analiz Raporu</h4>
+                        </div>
+                        
+                        {{if .AIAnalysis}}
+                        <div class="bg-emerald-50/30 border border-emerald-100 rounded-lg p-4 text-slate-700 text-xs leading-relaxed whitespace-pre-wrap">
+                            {{.AIAnalysis}}
+                        </div>
+                        <p class="text-right text-[9px] text-slate-400 mt-1.5">Analiz Zamanı: {{.AIAnalyzedAt.Format "02.01.2006 15:04"}}</p>
+                        {{else}}
+                        <div class="bg-amber-50 border border-amber-100 rounded-lg p-3 text-amber-800 text-xs flex items-center space-x-2">
+                            <i class="fa-solid fa-spinner animate-spin text-[10px]"></i>
+                            <span>AI Analiz Raporu arka planda hazırlanıyor... Sayfayı yenileyebilirsiniz.</span>
+                        </div>
+                        {{end}}
+                    </div>
+                </div>
+
+            </div>
+            {{else}}
+            <!-- Boş Durum -->
+            <div class="bg-white border border-slate-200 rounded-lg p-8 text-center shadow-sm">
+                <div class="text-slate-300 mb-3 text-4xl">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <h3 class="text-sm font-semibold text-slate-700">Tebrikler! Hiç Hata Logu Yok</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Sisteminiz tıkır tıkır çalışıyor.</p>
+            </div>
+            {{end}}
+        </div>
+    </main>
+</body>
+</html>
