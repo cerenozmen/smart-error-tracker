@@ -1,17 +1,17 @@
 Smart Error Tracker (SET)
 Smart Error Tracker (SET), Go (Fiber) ve PostgreSQL kullanılarak geliştirilmiş, uygulamalardaki hataları gerçek zamanlı olarak yakalayan, gruplayan ve yapay zeka (Gemini AI) desteğiyle analiz eden modern bir hata takip sistemidir.
-🚀 Özellikler
+Özellikler
 Gerçek Zamanlı Hata Toplama: Uygulamalarınızdan gelen hataları HTTP API üzerinden anında yakalar.
 Hata Gruplama (Fingerprinting): Benzersiz hata mesajı ve Stack Trace karmasını (MD5) kullanarak aynı hataları tek bir çatı (Issue) altında toplar, veritabanında kirliliği önler.
-Yapay Zeka Analiz Raporu: Yakalanan hatalar, asenkron olarak (Goroutine) Gemini AI servisine gönderilir. Yapay zeka hatanın kaynağını analiz ederek çözüm önerilerini doğrudan veritabanına kaydeder.
+Yapay Zeka Analiz Raporu: Yakalanan hatalar, asenkron olarak (Goroutine)  Cohore servisine gönderilir. Yapay zeka hatanın kaynağını analiz ederek çözüm önerilerini doğrudan veritabanına kaydeder.
 Kullanıcı Dostu Arayüz (Dashboard): Kaydedilen tüm hataları, hata sıklığını ve yapay zeka analiz raporlarını pürüzsüz bir web paneli üzerinden sunar.
 Docker Uyumlu: Kolay ve hızlı kurulum için veritabanı ve uygulama katmanları Dockerize edilmiştir.
-🛠️ Teknolojiler
+Teknolojiler
 Backend: Go (Golang) & Fiber Web Framework
 Veritabanı: PostgreSQL
-Yapay Zeka: Google Gemini API / Cohere API
-Containerization: Docker & Docker Compose
-⚙️ Kurulum ve Çalıştırma
+Yapay Zeka: Cohere API
+Containerization: Docker 
+Kurulum ve Çalıştırma
 1. Veritabanının Hazırlanması (PostgreSQL)
 Docker üzerinde kalıcı ve güvenli bir PostgreSQL veritabanını başlatmak için terminalden şu komutu çalıştırın:
 docker run -d \
@@ -24,7 +24,7 @@ docker run -d \
   postgres:15-alpine
 
 
-2. Veritabanı Şemasının Oluşturulması
+Veritabanı Şemasının Oluşturulması
 pgAdmin veya psql kullanarak smart_error_tracker veritabanına bağlanın ve aşağıdaki şema sorgusunu çalıştırın:
 -- UUID eklentisini aktifleştirme
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -67,7 +67,7 @@ CREATE INDEX IF NOT EXISTS idx_issues_project_fingerprint ON issues(project_id, 
 CREATE INDEX IF NOT EXISTS idx_errors_issue_id ON errors(issue_id);
 
 
-3. Uygulamanın Docker ile Çalıştırılması
+Uygulamanın Docker ile Çalıştırılması
 Projenin ana dizininde uygulamanızı derleyip (Image oluşturup) aşağıdaki komutla API anahtarlarınızı tanımlayarak çalıştırın:
 docker run -d \
   --name SET \
@@ -77,9 +77,10 @@ docker run -d \
   smart-error-tracker
 
 
-🎯 API Kullanımı (Postman Adımları)
+API Kullanımı (Postman Adımları)
 1. Yeni Bir Proje Oluşturma
 Metot: POST
+Headers: Key:Content-Type/Value:application/json
 URL: http://localhost:8080/api/v1/projects
 Gövde (JSON):
 {
@@ -100,6 +101,6 @@ Gövde (JSON):
 }
 
 
-📊 İzleme
+İzleme
 Gönderdiğiniz hataları ve arka planda üretilen yapay zeka analiz raporlarını tarayıcınızdan şu adrese giderek izleyebilirsiniz:
 👉 http://localhost:8080/dashboard

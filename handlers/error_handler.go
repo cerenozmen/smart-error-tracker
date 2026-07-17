@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"SET/database"
+	"SET/models"
 	"SET/services"
-	"SET/models" // Modelleri tekrar içeri alıyoruz
 	"context"
 	"crypto/md5"
 	"encoding/hex"
@@ -11,9 +11,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// CaptureError dışarıdan gelen hataları yakalayıp gruplayan endpoint
 func CaptureError(c *fiber.Ctx) error {
-	// models paketindeki struct'ı kullanıyoruz
+
 	var req models.ErrorRequest
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -21,7 +20,6 @@ func CaptureError(c *fiber.Ctx) error {
 		})
 	}
 
-	// 1. API Key kontrolü ve Proje sorgulama
 	ctx := context.Background()
 	var projectID int
 	err := database.DB.QueryRow(ctx, "SELECT id FROM projects WHERE api_key = $1", req.APIKey).Scan(&projectID)
@@ -31,12 +29,10 @@ func CaptureError(c *fiber.Ctx) error {
 		})
 	}
 
-	// 2. Parmak İzi (Fingerprint) oluşturma
 	hashInput := req.Message + req.StackTrace
 	hash := md5.Sum([]byte(hashInput))
 	fingerprint := hex.EncodeToString(hash[:])
 
-	// 3. Veritabanında bu hata grubundan (Issue) daha önce var mı kontrol et, yoksa oluştur
 	var issueID int
 	query := `
 		INSERT INTO issues (project_id, fingerprint, title, status, last_seen_at)
@@ -52,7 +48,6 @@ func CaptureError(c *fiber.Ctx) error {
 		})
 	}
 
-	// 4. Tekil Hatayı (Error) kaydet
 	insertErrorQuery := `
 		INSERT INTO errors (issue_id, message, stack_trace, environment, payload, created_at)
 		VALUES ($1, $2, $3, $4, $5, NOW())
@@ -63,17 +58,15 @@ func CaptureError(c *fiber.Ctx) error {
 			"error": "Tekil hata detayı kaydedilemedi: " + err.Error(),
 		})
 	}
-	// 5. Arka planda (asenkron olarak) AI Analizini başlat (Goroutine)
-	// Kullanıcı hata kaydedildi yanıtını anında alacak, AI ise arkada çalışmaya devam edecek.
+
 	go func(issueID int, msg, trace string) {
 		analysis, err := services.AnalyzeErrorWithGemini(msg, trace)
 		if err != nil {
-			// Hata durumunu loglayabiliriz
+
 			println("AI Analiz hatası:", err.Error())
 			return
 		}
 
-		// Analiz başarılıysa veritabanında ilgili issue'yu güncelle
 		updateCtx := context.Background()
 		updateQuery := `
 			UPDATE issues 
@@ -84,12 +77,12 @@ func CaptureError(c *fiber.Ctx) error {
 		if err != nil {
 			println("AI Analizi veritabanına kaydedilemedi:", err.Error())
 		} else {
-			println("🎉 Hata ID", issueID, "için Gemini AI analizi başarıyla tamamlandı ve kaydedildi!")
+			println(" Hata ID", issueID, "için Cohere analizi başarıyla tamamlandı ve kaydedildi!")
 		}
 	}(issueID, req.Message, req.StackTrace)
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"message":     "Hata başarıyla kaydedildi! 🛠️",
+		"message":     "Hata başarıyla kaydedildi! ",
 		"issue_id":    issueID,
 		"fingerprint": fingerprint,
 	})

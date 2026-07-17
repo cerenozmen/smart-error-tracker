@@ -4,7 +4,6 @@ import (
 	"time"
 )
 
-// Project sistemimize hata gönderecek uygulamaları temsil eder.
 type Project struct {
 	ID        int       `json:"id"`
 	Name      string    `json:"name"`
@@ -12,7 +11,7 @@ type Project struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// Issue benzer hataların gruplandığı ana yapıdır. AI analizi buraya kaydedilir.
+
 type Issue struct {
 	ID           int        `json:"id"`
 	ProjectID    int        `json:"project_id"`
@@ -25,7 +24,6 @@ type Issue struct {
 	CreatedAt    time.Time  `json:"created_at"`
 }
 
-// Error sisteme gelen her bir tekil hatayı temsil eder.
 type Error struct {
 	ID          int64                  `json:"id"`
 	IssueID     int                    `json:"issue_id"`
@@ -35,7 +33,7 @@ type Error struct {
 	Payload     map[string]interface{} `json:"payload"`     // JSONB verisi için Go karşılığı
 	CreatedAt   time.Time              `json:"created_at"`
 }
-// Hata isteği için gelen veri yapısı (Request Body)
+
 type ErrorRequest struct {
 	APIKey      string                 `json:"api_key"`
 	Message     string                 `json:"message"`

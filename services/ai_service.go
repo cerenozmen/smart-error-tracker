@@ -9,7 +9,7 @@ import (
 	cohereclient "github.com/cohere-ai/cohere-go/v2/client"
 )
 
-// AnalyzeErrorWithGemini (Cohere yedekli sistem) hatayı analiz eder
+
 func AnalyzeErrorWithGemini(errorMessage, stackTrace string) (string, error) {
 	apiKey := os.Getenv("COHERE_API_KEY")
 	if apiKey == "" {
@@ -28,9 +28,6 @@ HATA MESAJI:
 STACK TRACE:
 %s`, errorMessage, stackTrace)
 
-	// 🎯 COHERE GÜNCEL MODEL LİSTESİ
-	// Cohere'in şu an yayında olan aktif modellerini sırayla deniyoruz.
-	// Biri 404 verirse hemen bir sonrakine geçiş yapacak!
 	models := []string{
 		"command-r7b",     // Cohere'in en yeni ve aktif hafif modeli
 		"command-light",   // Her zaman aktif olan hızlı temel model
@@ -47,15 +44,11 @@ STACK TRACE:
 			},
 		)
 
-		// Eğer bu model çalıştıysa doğrudan cevabı dönüyoruz
 		if err == nil && resp != nil {
 			return resp.Text, nil
 		}
-
-		// Hata aldıysak kaydet ve döngüde sonraki modele geç
 		lastErr = err
 	}
 
-	// Eğer hiçbir model çalışmadıysa en son hatayı fırlat
 	return "", fmt.Errorf("Cohere modellerinin hiçbiri yanıt vermedi. Son hata: %v", lastErr)
 }

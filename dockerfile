@@ -1,12 +1,12 @@
-# 1. Aşama: Uygulamayı derleme aşaması (Go sürümünü 1.25 yaptık!)
+# 1. Aşama: Uygulamayı derleme aşaması 
 FROM golang:1.25-alpine AS builder
 
-# Git ve derleme için gerekli araçları yüklüyoruz
+# Git ve derleme için gerekli araçları 
 RUN apk add --no-cache git
 
 WORKDIR /app
 
-# Go modüllerini kopyalıyoruz
+# Go modülleri
 COPY go.mod go.sum ./
 
 # Güvenli ve hızlı indirme için Go Proxy tanımlıyoruz
@@ -21,7 +21,7 @@ COPY . .
 # Uygulamayı optimize edilmiş bir binary olarak derliyoruz
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o main .
 
-# 2. Aşama: Çalıştırma aşaması (Minimum imaj boyutu için alpine kullanıyoruz)
+# 2. Aşama: Çalıştırma aşaması 
 FROM alpine:3.18
 
 RUN apk add --no-cache ca-certificates tzdata
