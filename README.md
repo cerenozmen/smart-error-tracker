@@ -1,19 +1,35 @@
-Smart Error Tracker (SET)
+<h3> Smart Error Tracker (SET) <h3>
+
 Smart Error Tracker (SET), Go (Fiber) ve PostgreSQL kullanılarak geliştirilmiş, uygulamalardaki hataları gerçek zamanlı olarak yakalayan, gruplayan ve yapay zeka (Gemini AI) desteğiyle analiz eden modern bir hata takip sistemidir.
+
 Özellikler
+
 Gerçek Zamanlı Hata Toplama: Uygulamalarınızdan gelen hataları HTTP API üzerinden anında yakalar.
+
 Hata Gruplama (Fingerprinting): Benzersiz hata mesajı ve Stack Trace karmasını (MD5) kullanarak aynı hataları tek bir çatı (Issue) altında toplar, veritabanında kirliliği önler.
+
 Yapay Zeka Analiz Raporu: Yakalanan hatalar, asenkron olarak (Goroutine)  Cohore servisine gönderilir. Yapay zeka hatanın kaynağını analiz ederek çözüm önerilerini doğrudan veritabanına kaydeder.
+
 Kullanıcı Dostu Arayüz (Dashboard): Kaydedilen tüm hataları, hata sıklığını ve yapay zeka analiz raporlarını pürüzsüz bir web paneli üzerinden sunar.
+
 Docker Uyumlu: Kolay ve hızlı kurulum için veritabanı ve uygulama katmanları Dockerize edilmiştir.
+
 Teknolojiler
+
 Backend: Go (Golang) & Fiber Web Framework
+
 Veritabanı: PostgreSQL
+
 Yapay Zeka: Cohere API
+
 Containerization: Docker 
+
 Kurulum ve Çalıştırma
+
 1. Veritabanının Hazırlanması (PostgreSQL)
+
 Docker üzerinde kalıcı ve güvenli bir PostgreSQL veritabanını başlatmak için terminalden şu komutu çalıştırın:
+
 docker run -d \
   --name set_postgres \
   -p 5434:5432 \
@@ -25,11 +41,14 @@ docker run -d \
 
 
 Veritabanı Şemasının Oluşturulması
+
 pgAdmin veya psql kullanarak smart_error_tracker veritabanına bağlanın ve aşağıdaki şema sorgusunu çalıştırın:
+
 -- UUID eklentisini aktifleştirme
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Projeler Tablosu
+
 CREATE TABLE IF NOT EXISTS projects (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -38,6 +57,7 @@ CREATE TABLE IF NOT EXISTS projects (
 );
 
 -- Hata Grupları (Issues) Tablosu
+
 CREATE TABLE IF NOT EXISTS issues (
     id SERIAL PRIMARY KEY,
     project_id INTEGER REFERENCES projects(id) ON DELETE CASCADE,
@@ -51,7 +71,9 @@ CREATE TABLE IF NOT EXISTS issues (
     CONSTRAINT unique_project_fingerprint UNIQUE (project_id, fingerprint)
 );
 
+
 -- Tekil Hatalar (Errors) Tablosu
+
 CREATE TABLE IF NOT EXISTS errors (
     id SERIAL PRIMARY KEY,
     issue_id INTEGER REFERENCES issues(id) ON DELETE CASCADE,
@@ -63,12 +85,15 @@ CREATE TABLE IF NOT EXISTS errors (
 );
 
 -- İndeksler
+
 CREATE INDEX IF NOT EXISTS idx_issues_project_fingerprint ON issues(project_id, fingerprint);
 CREATE INDEX IF NOT EXISTS idx_errors_issue_id ON errors(issue_id);
 
 
 Uygulamanın Docker ile Çalıştırılması
+
 Projenin ana dizininde uygulamanızı derleyip (Image oluşturup) aşağıdaki komutla API anahtarlarınızı tanımlayarak çalıştırın:
+
 docker run -d \
   --name SET \
   -p 8080:8080 \
@@ -78,29 +103,50 @@ docker run -d \
 
 
 API Kullanımı (Postman Adımları)
+
 1. Yeni Bir Proje Oluşturma
+
 Metot: POST
+
 Headers: Key:Content-Type/Value:application/json
+
 URL: http://localhost:8080/api/v1/projects
+
 Gövde (JSON):
+
 {
+
   "name": "Benim Ilk Go Projem"
+
 }
 
 
 Yanıt olarak gelen api_key değerini kopyalayın.
+
 2. Yeni Bir Hata Fırlatma
+
 Metot: POST
+
 URL: http://localhost:8080/api/v1/errors
+
 Gövde (JSON):
+
 {
+
   "api_key": "PROJE_OLUSTURURKEN_ALINAN_API_KEY",
+
   "message": "database connection timeout",
+
   "stack_trace": "main.go:55 -> database.ConnectDB() -> timeout after 5s",
+
   "environment": "production"
+
 }
 
 
+
 İzleme
+
 Gönderdiğiniz hataları ve arka planda üretilen yapay zeka analiz raporlarını tarayıcınızdan şu adrese giderek izleyebilirsiniz:
+
 👉 http://localhost:8080/dashboard
