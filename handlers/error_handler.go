@@ -60,7 +60,7 @@ func CaptureError(c *fiber.Ctx) error {
 	}
 
 	go func(issueID int, msg, trace string) {
-		analysis, err := services.AnalyzeErrorWithGemini(msg, trace)
+		analysis, err := services.AnalyzeErrorWithChore(msg, trace)
 		if err != nil {
 
 			println("AI Analiz hatası:", err.Error())

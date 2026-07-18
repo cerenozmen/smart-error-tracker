@@ -10,7 +10,7 @@ import (
 )
 
 
-func AnalyzeErrorWithGemini(errorMessage, stackTrace string) (string, error) {
+func AnalyzeErrorWithChore(errorMessage, stackTrace string) (string, error) {
 	apiKey := os.Getenv("COHERE_API_KEY")
 	if apiKey == "" {
 		return "", fmt.Errorf("COHERE_API_KEY çevre değişkeni bulunamadı")
