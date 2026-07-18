@@ -98,7 +98,7 @@ docker run -d \
   --name SET \
   -p 8080:8080 \
   -e DB_CONN_STR="postgres://postgres:123456@host.docker.internal:5434/smart_error_tracker?sslmode=disable" \
-  -e GEMINI_API_KEY="SENIN_GEMINI_API_KEYIN" \
+  -e GEMINI_API_KEY="SENIN_CHORE_API_KEYIN" \
   smart-error-tracker
 
 
